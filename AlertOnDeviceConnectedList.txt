@@ -1,0 +1,2 @@
+# Device names listed here will trigger an alert when the program is ran
+Google-Home-Mini
