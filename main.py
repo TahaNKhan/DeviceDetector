@@ -1,23 +1,36 @@
-from Logic.NetworkIPAddressAccessor import NetworkIPAddressAccessor
-from Logic.Helpers.HostNameResolver import HostNameResolver
-from Logic.Helpers.Beeper import Beeper
-
-def main():
-    list_of_ips = NetworkIPAddressAccessor.get_network_ip_addresses()
-    host_names = map(HostNameResolver.resolve_host_name_from_ipv4, list_of_ips)
-    devices_to_alert = get_devices_to_alert()
-    devices_to_alert_dict = dict()
-    for device in devices_to_alert:
-        devices_to_alert_dict[device] = True
-    for host_name in host_names:
-        if host_name in devices_to_alert_dict:
-            Beeper.beep()
-            print(host_name + ' found and beeped!')
-        else:
-            print(host_name + ' found but not in alert list')
+from Logic.DectectorOrchestrator import DetectorOrchestrator
+from Logic.Logging.ConsoleLogger import ConsoleLogger
+from Logic.Logging.LoggerInterface import LoggerInterface
+import sys
 
 
-def get_devices_to_alert() -> list:
+def handle_command_line_args(args: list[str], orchestrator: DetectorOrchestrator, logger: LoggerInterface) -> bool:
+    supported_args = ['-list']
+    has_supported_args = any(map(lambda argument: argument in supported_args, args))
+    if not has_supported_args:
+        return False
+    for arg in args:
+        if arg == '-list':
+            ips_and_host_names = orchestrator.get_local_ip_addresses()
+            logger.log('Listing IPs and PC names ---')
+            for ip in ips_and_host_names.keys():
+                logger.log(ip + ' : ' + ips_and_host_names[ip])
+    return True
+
+
+def main(args: list[str]):
+    logger = ConsoleLogger(True)
+    devices = get_devices_to_alert()
+    try:
+        orchestrator = DetectorOrchestrator(logger, devices)
+        if handle_command_line_args(args, orchestrator, logger):
+            return
+        orchestrator.start()
+    finally:
+        logger.publish()
+
+
+def get_devices_to_alert() -> list[str]:
     try:
         file = open('./AlertOnDeviceConnectedList.txt')
         lines = file.readlines()
@@ -28,5 +41,6 @@ def get_devices_to_alert() -> list:
         # File doesn't exist
         return []
 
+
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
