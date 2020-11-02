@@ -9,7 +9,7 @@ class NetworkIPAddressAccessor:
         Returns a regex that matches on IP addresses that start with 192
         :return: str
         """
-        return r'192+\.[0-9]+[0-9]*[0-9]*\.[0-9]+[0-9]*[0-9]*\.[0-9]+[0-9]*[0-9]*'
+        return r'[192|10]+\.[0-9]+[0-9]*[0-9]*\.[0-9]+[0-9]*[0-9]*\.[0-9]+[0-9]*[0-9]*'
 
     @staticmethod
     def get_network_ip_addresses() -> list[str]:

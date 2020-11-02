@@ -1,34 +1,22 @@
 from Logic.DectectorOrchestrator import DetectorOrchestrator
 from Logic.Logging.ConsoleLogger import ConsoleLogger
 from Logic.Logging.LoggerInterface import LoggerInterface
+from Logic.Helpers.CommandLineArgumentHandler import CommandLineArgumentHandler
 import sys
 
-
-def handle_command_line_args(args: list[str], orchestrator: DetectorOrchestrator, logger: LoggerInterface) -> bool:
-    supported_args = ['-list']
-    has_supported_args = any(map(lambda argument: argument in supported_args, args))
-    if not has_supported_args:
-        return False
-    for arg in args:
-        if arg == '-list':
-            ips_and_host_names = orchestrator.get_local_ip_addresses()
-            logger.log('Listing IPs and PC names ---')
-            for ip in ips_and_host_names.keys():
-                logger.log(ip + ' : ' + ips_and_host_names[ip])
-    return True
-
-
-def main(args: list[str]):
+def main(args: list[str]) -> None:
     logger = ConsoleLogger(True)
+    orchestrator = DetectorOrchestrator(logger)
+    command_line_helper = CommandLineArgumentHandler(orchestrator, logger)
+    if command_line_helper.handle_arguments(args):
+        return
     devices = get_devices_to_alert()
-    try:
-        orchestrator = DetectorOrchestrator(logger, devices)
-        if handle_command_line_args(args, orchestrator, logger):
-            return
-        orchestrator.start()
-    finally:
-        logger.publish()
-
+    orchestrator.set_devices_to_alert_on(devices)
+    while True:
+        try:
+            orchestrator.start()
+        finally:
+            logger.publish()
 
 def get_devices_to_alert() -> list[str]:
     try:

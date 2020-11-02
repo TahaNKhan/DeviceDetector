@@ -5,10 +5,13 @@ from Logic.NetworkIPAddressAccessor import NetworkIPAddressAccessor
 
 
 class DetectorOrchestrator:
-    def __init__(self, logger: LoggerInterface, devices_to_alert_on: list[str]):
+    def __init__(self, logger: LoggerInterface, devices_to_alert_on: list[str] = None):
         self.__devices_to_alert_on = devices_to_alert_on
         self.__logger = logger
         self.__network_devices: dict = None
+
+    def set_devices_to_alert_on(self, devices_to_alert_on: list[str]) -> None:
+         self.__devices_to_alert_on = devices_to_alert_on
 
     def get_local_ip_addresses(self) -> dict[str, str]:
         device_ips = NetworkIPAddressAccessor.get_network_ip_addresses()
