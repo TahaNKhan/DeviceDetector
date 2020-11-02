@@ -14,3 +14,6 @@ I wanted to brush up on my python skills and found this idea on a youtube video.
 ## Future
 1. Make the code cross-platform.
 2. Allow configurable beeps/sounds for different devices in the list.
+
+## Other Notes
+Requires Python 3.9
