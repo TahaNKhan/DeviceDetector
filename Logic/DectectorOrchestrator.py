@@ -9,6 +9,7 @@ class DetectorOrchestrator:
         self.__devices_to_alert_on = devices_to_alert_on
         self.__logger = logger
         self.__network_devices: dict = None
+        self.__existing_devices: dict = dict()
 
     def set_devices_to_alert_on(self, devices_to_alert_on: list[str]) -> None:
          self.__devices_to_alert_on = devices_to_alert_on
@@ -20,7 +21,7 @@ class DetectorOrchestrator:
             self.__network_devices[ip] = HostNameResolver.resolve_host_name_from_ipv4(ip)
         return self.__network_devices
 
-    def start(self):
+    def detect(self):
         if self.__network_devices is None:
             list_of_ips: list[str] = NetworkIPAddressAccessor.get_network_ip_addresses()
             host_names: list[str] = list(map(HostNameResolver.resolve_host_name_from_ipv4, list_of_ips))
@@ -29,8 +30,9 @@ class DetectorOrchestrator:
 
         devices_to_alert_dict = dict.fromkeys(self.__devices_to_alert_on, True)
         for host_name in host_names:
-            if host_name in devices_to_alert_dict:
+            if host_name in devices_to_alert_dict and host_name not in self.__existing_devices:
                 Beeper.beep()
                 self.__logger.log(host_name + ' found and beeped!')
             else:
-                self.__logger.log(host_name + ' found but not in alert list')
+                self.__logger.log(host_name + ' found but did not alert')
+        self.__existing_devices = dict.fromkeys(host_names, True)

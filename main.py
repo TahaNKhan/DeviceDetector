@@ -14,7 +14,7 @@ def main(args: list[str]) -> None:
     orchestrator.set_devices_to_alert_on(devices)
     while True:
         try:
-            orchestrator.start()
+            orchestrator.detect()
         finally:
             logger.publish()
 
