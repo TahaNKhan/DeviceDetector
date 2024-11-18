@@ -17,3 +17,4 @@ class ConsoleLogger(LoggerInterface):
             return
         for log in self.__logs:
             print(log)
+        self.__logs = []
